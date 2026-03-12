@@ -1,0 +1,14 @@
+/home/fabio/BatalhaNaval/obj/Debug/net8.0/BatalhaNaval.GeneratedMSBuildEditorConfig.editorconfig
+/home/fabio/BatalhaNaval/obj/Debug/net8.0/BatalhaNaval.AssemblyInfoInputs.cache
+/home/fabio/BatalhaNaval/obj/Debug/net8.0/BatalhaNaval.AssemblyInfo.cs
+/home/fabio/BatalhaNaval/obj/Debug/net8.0/BatalhaNaval.csproj.CoreCompileInputs.cache
+/home/fabio/BatalhaNaval/bin/Debug/net8.0/BatalhaNaval
+/home/fabio/BatalhaNaval/bin/Debug/net8.0/BatalhaNaval.deps.json
+/home/fabio/BatalhaNaval/bin/Debug/net8.0/BatalhaNaval.runtimeconfig.json
+/home/fabio/BatalhaNaval/bin/Debug/net8.0/BatalhaNaval.dll
+/home/fabio/BatalhaNaval/bin/Debug/net8.0/BatalhaNaval.pdb
+/home/fabio/BatalhaNaval/obj/Debug/net8.0/BatalhaNaval.dll
+/home/fabio/BatalhaNaval/obj/Debug/net8.0/refint/BatalhaNaval.dll
+/home/fabio/BatalhaNaval/obj/Debug/net8.0/BatalhaNaval.pdb
+/home/fabio/BatalhaNaval/obj/Debug/net8.0/BatalhaNaval.genruntimeconfig.cache
+/home/fabio/BatalhaNaval/obj/Debug/net8.0/ref/BatalhaNaval.dll
