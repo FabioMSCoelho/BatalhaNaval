@@ -12,3 +12,4 @@
 /home/fabio/BatalhaNaval/obj/Debug/net8.0/BatalhaNaval.pdb
 /home/fabio/BatalhaNaval/obj/Debug/net8.0/BatalhaNaval.genruntimeconfig.cache
 /home/fabio/BatalhaNaval/obj/Debug/net8.0/ref/BatalhaNaval.dll
+/home/fabio/BatalhaNaval/obj/Debug/net8.0/BatalhaNaval.sourcelink.json

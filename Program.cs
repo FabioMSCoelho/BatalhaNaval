@@ -45,9 +45,21 @@ namespace Batalha_Naval
                     Cor = cor;
                 }
         }
+        struct Coordenada
+        {
+            public int Linha;
+            public int Coluna;
+
+            public Coordenada(int linha, int coluna)
+            {
+                Linha = linha;
+                Coluna = coluna;
+            }
+        }
         #endregion
         #region Estado do jogo
         static int scorePlayer1 = 0, scorePlayer2 = 0;
+        static bool jogoAtivo = true;
         #endregion
         #region Utilidades
         static readonly Random random = new Random();
@@ -55,11 +67,11 @@ namespace Batalha_Naval
         #region Configuração
         static int corPlayer1, corPlayer2;
         static string nomePlayer1 = "", nomePlayer2 = "";
-        static int quantPortaAvioes = 1;
-        static int quantEncouracados = 2;
-        static int quantCruzadores = 2;
-        static int quantDestroyers = 3;
-        static int quantSubmarinos = 3;
+        static int quantPortaAvioes = 0; //1
+        static int quantEncouracados = 0; //2
+        static int quantCruzadores = 0; //2
+        static int quantDestroyers = 0; //3
+        static int quantSubmarinos = 1; //3
         #endregion
         #region Tabuleiros
         static TipoCelula[,] tabuleiroFrotaP1 = new TipoCelula[TAM_TABULEIRO, TAM_TABULEIRO];
@@ -72,7 +84,7 @@ namespace Batalha_Naval
         static void Main(string[] args)
         {
             int opcao = 0;
-            int [] coordenadaTiro = new int[2];
+            Coordenada posicaoTiro = new Coordenada();
             string posicionar = "N";
 
             string[] navio = new string[]
@@ -110,34 +122,34 @@ namespace Batalha_Naval
             };
 
             //inicializa os tabuleiros
-            IniciaTabuleiro(tabuleiroFrotaP1);
-            IniciaTabuleiro(tabuleiroFrotaP2);
-            IniciaTabuleiro(tabuleiroRadarP1);
-            IniciaTabuleiro(tabuleiroRadarP2);
+            InicializarTabuleiro(tabuleiroFrotaP1);
+            InicializarTabuleiro(tabuleiroFrotaP2);
+            InicializarTabuleiro(tabuleiroRadarP1);
+            InicializarTabuleiro(tabuleiroRadarP2);
 
             while (opcao != 1)
             {
                 Console.Clear();
                 // MENU
                 ImprimirArte(menuArte);
-                Space(4);
+                PularLinha(4);
 
                 Console.WriteLine("[1] Começar novo jogo");
                 Console.WriteLine("[2] Continuar");
                 Console.WriteLine("[3] Instruções");
                 Console.WriteLine("[4] Configurações");
                 Console.WriteLine("[5] Sair");
-                Space(3);
+                PularLinha(3);
 
                 //imprime arte do navio
                 foreach (string linha in navio)
                 {
                     Console.WriteLine(linha);
                 }
-                Space(2);
+                PularLinha(2);
 
                 // Lê a opção do usuário
-                opcao = LerNumero();
+                opcao = LerInteiro();
                 Console.Clear();
 
                 switch (opcao)
@@ -150,32 +162,32 @@ namespace Batalha_Naval
                         Console.ResetColor();
 
                         Console.WriteLine("O objetivo do jogo é destruir todos os navios do seu oponente.");
-                        Space();
+                        PularLinha();
 
                         Console.WriteLine("No início da partida, o campo inimigo estará totalmente oculto.");
                         Console.WriteLine("Você não saberá onde os navios do adversário estão posicionados.");
-                        Space();
+                        PularLinha();
 
                         Console.WriteLine("Para atacar, informe a LINHA e a COLUNA do local desejado.");
-                        Space();
+                        PularLinha();
 
                         Console.Write("Se você acertar um navio, a posição será marcada com ");
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.Write(TipoCelula.Acerto);
                         Console.ResetColor();
                         Console.WriteLine(" e você poderá jogar novamente.");
-                        Space();
+                        PularLinha();
 
                         Console.Write("Se você errar o ataque, a posição será marcada com ");
                         Console.ForegroundColor = ConsoleColor.Yellow;
                         Console.Write(TipoCelula.Erro);
                         Console.ResetColor();
                         Console.WriteLine(" e a vez passará para o seu adversário.");
-                        Space();
+                        PularLinha();
 
                         Console.WriteLine("O jogo termina quando um dos jogadores destruir todos os navios do oponente.");
                         Console.ForegroundColor = ConsoleColor.DarkGray;
-                        Space();
+                        PularLinha();
                         Console.WriteLine("você deseja Conhecer a interface do jogo (S/N) ?");
                         Console.ResetColor();
                         desejaconhecer = (Console.ReadLine() ?? "").ToUpper();
@@ -189,7 +201,6 @@ namespace Batalha_Naval
                             tabuleiroRadarP1[10, 10] = TipoCelula.Acerto;
                             tabuleiroRadarP1[10, 11] = TipoCelula.Acerto;
                             tabuleiroRadarP1[10, 12] = TipoCelula.Acerto;
-                            tabuleiroRadarP1[10, 13] = TipoCelula.Acerto;
                             tabuleiroRadarP1[8, 7] = TipoCelula.Acerto;
                             tabuleiroFrotaP1[1, 1] = TipoCelula.Submarino;
                             tabuleiroFrotaP1[3, 9] = TipoCelula.Submarino;
@@ -202,7 +213,7 @@ namespace Batalha_Naval
                             tabuleiroFrotaP1[11, 4] = TipoCelula.Encouracado;
                             tabuleiroFrotaP1[0, 5] = TipoCelula.Cruzador;
                             tabuleiroFrotaP1[1, 5] = TipoCelula.Cruzador;
-                            tabuleiroFrotaP1[3, 13] = TipoCelula.Erro;
+                            tabuleiroFrotaP1[3, 12] = TipoCelula.Erro;
                             tabuleiroFrotaP1[4, 4] = TipoCelula.Erro;
                             tabuleiroFrotaP1[1, 9] = TipoCelula.Erro;
                             tabuleiroFrotaP1[2, 5] = TipoCelula.Cruzador;
@@ -212,10 +223,10 @@ namespace Batalha_Naval
                             Console.Write("                  Player: Fábio");
                             Console.ResetColor();
                             Console.Write("    <---   jogador da vez");
-                            Space(2);
+                            PularLinha(2);
                             Console.ReadKey();
                             Console.WriteLine("Legenda: ");
-                            Space();
+                            PularLinha();
                             Console.ForegroundColor = ConsoleColor.Cyan;
                             Console.Write(TipoCelula.Agua);
                             Console.ResetColor();
@@ -228,36 +239,36 @@ namespace Batalha_Naval
                             Console.Write(TipoCelula.Acerto);
                             Console.ResetColor();
                             Console.WriteLine(" acertou");
-                            Space();
+                            PularLinha();
                             Console.WriteLine("logo acima temos uma legenda auto explicativa que lhe informa o que cada simbolo significa");
-                            Space(2);
+                            PularLinha(2);
                             Console.ReadKey();
                             Console.ForegroundColor = ConsoleColor.DarkGreen;
                             Console.WriteLine("                   SUA FROTA");
                             Console.ResetColor();
-                            Space();
+                            PularLinha();
                             Console.Write("    1  2  3  4  5  6  7  8  9  10 11 12 13");
-                            Space();
+                            PularLinha();
                             ImprimeTabuleiro(tabuleiroFrotaP1);
-                            Space();
+                            PularLinha();
                             Console.WriteLine("Este é o campo onde você vizualiza suas embarcações e onde o inimigo lhe atacou");
                             Console.ReadKey();
-                            Space(2);
+                            PularLinha(2);
                             Console.ForegroundColor = ConsoleColor.Red;
                             Console.WriteLine("                   SEU RADAR");
                             Console.ResetColor();
-                            Space();
+                            PularLinha();
                             
                             ImprimeTabuleiro(tabuleiroRadarP1);
-                            Space();
+                            PularLinha();
                             Console.WriteLine("Este é o campo onde você Realiza seus ataques");
                             Console.ReadKey();
-                            Space();
+                            PularLinha();
                             Console.WriteLine("insira a linha em que você quer atacar:");
                             Console.ReadKey();
                             Console.WriteLine("insira a coluna em que você quer atacar:");
                             Console.ReadKey();
-                            Space();
+                            PularLinha();
                             Console.ForegroundColor = ConsoleColor.DarkGray;
                             Console.WriteLine("Presione qualquer tecla para voltar ao menu");
                             Console.ResetColor();
@@ -270,7 +281,6 @@ namespace Batalha_Naval
                             tabuleiroRadarP1[10, 10] = TipoCelula.Agua;
                             tabuleiroRadarP1[10, 11] = TipoCelula.Agua;
                             tabuleiroRadarP1[10, 12] = TipoCelula.Agua;
-                            tabuleiroRadarP1[10, 13] = TipoCelula.Agua;
                             tabuleiroRadarP1[8, 7] = TipoCelula.Agua;
                             tabuleiroFrotaP1[1, 1] = TipoCelula.Agua;
                             tabuleiroFrotaP1[3, 9] = TipoCelula.Agua;
@@ -283,7 +293,6 @@ namespace Batalha_Naval
                             tabuleiroFrotaP1[11, 4] = TipoCelula.Agua;
                             tabuleiroFrotaP1[0, 5] = TipoCelula.Agua;
                             tabuleiroFrotaP1[1, 5] = TipoCelula.Agua;
-                            tabuleiroFrotaP1[3, 13] = TipoCelula.Agua;
                             tabuleiroFrotaP1[4, 4] = TipoCelula.Agua;
                             tabuleiroFrotaP1[1, 9] = TipoCelula.Agua;
                             tabuleiroFrotaP1[2, 5] = TipoCelula.Agua;
@@ -297,15 +306,17 @@ namespace Batalha_Naval
                         Console.ForegroundColor = ConsoleColor.DarkRed;
                         Console.WriteLine("              configurações");
                         Console.ResetColor();
-                        Space(2);
-                        Console.Write("Insira a quantidade de submarinos no jogo: ");
-                        quantSubmarinos = LerNumero();
-                        Console.Write("Insira a quantidade de porta aviões no jogo: ");
-                        quantPortaAvioes = LerNumero();
-                        Console.Write("Insira a quantidade de cruzadores no jogo: ");
-                        quantCruzadores = LerNumero();
-                        Console.Write("Insira a quantidade de encouraçados no jogo: ");
-                        quantEncouracados = LerNumero();
+                        PularLinha(2);
+                        Console.Write("Insira a quantidade de porta aviões(Tamanho 5) no jogo: ");
+                        quantPortaAvioes = LerInteiro();
+                        Console.Write("Insira a quantidade de encouraçados(Tamanho 4) no jogo: ");
+                        quantEncouracados = LerInteiro();
+                        Console.Write("Insira a quantidade de cruzadores(Tamanho 3) no jogo: ");
+                        quantCruzadores = LerInteiro();
+                        Console.Write("Insira a quantidade de destroyers(Tamanho 2) no jogo: ");
+                        quantDestroyers = LerInteiro();
+                        Console.Write("Insira a quantidade de submarinos(Tamanho 1) no jogo: ");
+                        quantSubmarinos = LerInteiro();
                         Console.ForegroundColor = ConsoleColor.DarkGray;
                         Console.WriteLine("Retornando ao menu...");
                         Console.ResetColor();
@@ -323,13 +334,13 @@ namespace Batalha_Naval
             }
             // configurações iniciais do player 1
             CapturaNomeCor(1);
-            Space();
+            PularLinha();
             Console.WriteLine("você deseja posicionar sua frota (S/N) ?");
             posicionar = (Console.ReadLine() ?? "").ToUpper();
 
             if (posicionar == "S")
             {
-                Space();
+                PularLinha();
                 Console.ForegroundColor = ConsoleColor.DarkGray;
                 Console.WriteLine("Pressione qualquer tecla para iniciar o posicionamento");
                 Console.ResetColor();
@@ -346,7 +357,7 @@ namespace Batalha_Naval
             else if (posicionar == "N")
             {
                 Console.ForegroundColor = ConsoleColor.DarkGray;
-                Space();
+                PularLinha();
                 Console.WriteLine("Enviando embarcações...");
                 Console.ResetColor();
                 Thread.Sleep(3000);
@@ -357,14 +368,14 @@ namespace Batalha_Naval
             Console.Clear();
             // configurações iniciais do player 2
             CapturaNomeCor(2);
-            Space();
+            PularLinha();
             Console.WriteLine("você deseja posicionar seus navios(S/N) ?");
             posicionar = (Console.ReadLine() ?? "").ToUpper();
 
 
             if (posicionar == "S")
             {
-                Space();
+                PularLinha();
                 Console.ForegroundColor = ConsoleColor.DarkGray;
                 Console.WriteLine("Pressione qualquer tecla para iniciar o posicionamento");
                 Console.ResetColor();
@@ -378,7 +389,7 @@ namespace Batalha_Naval
             else if (posicionar == "N")
             {
                 Console.ForegroundColor = ConsoleColor.DarkGray;
-                Space();
+                PularLinha();
                 Console.WriteLine("Enviando embarcações...");
                 Console.ResetColor();
                 Thread.Sleep(3000);                
@@ -389,33 +400,34 @@ namespace Batalha_Naval
 
             if (opcao == 1)// opção jogar
             {
-                while (scorePlayer1 < CalcPontosVitoria() && scorePlayer2 < CalcPontosVitoria())
+                // int pontosVitoria = CalcularPontosVitoria();
+                while (jogoAtivo)
                 {
                     Console.Clear();
 
                     //<------------PLAYER1------------->
 
                     //imprimindo a tela do player
-                    ImpressaoTelaJogador(1);
+                    ExibirTelaJogador(1);
 
                     // metodo dar tiro (coleta as cordenadas)
-                    DarTiro(coordenadaTiro, tabuleiroRadarP1);
+                    CapturarCoordenadaTiro(ref posicaoTiro, tabuleiroRadarP1);
 
                     // metodo que atualiza o tabuleiro após o tiro ser realizando
-                    AlteraTabuleiro(tabuleiroFrotaP2, tabuleiroRadarP1, coordenadaTiro);
-
+                    ProcessarTiro(tabuleiroFrotaP2, tabuleiroRadarP1, posicaoTiro);
+                    
                     Console.Clear();
 
                     //<------------PLAYER2------------->
 
                     //imprime a tela do player 2
-                    ImpressaoTelaJogador(2);
+                    ExibirTelaJogador(2);
 
                     //metodo dar tiro (coleta as cordenadas)
-                    DarTiro(coordenadaTiro, tabuleiroRadarP2);
+                    CapturarCoordenadaTiro(ref posicaoTiro, tabuleiroRadarP2);
 
                     //metodo que atualiza o a tabuleiro após o tiro ser realizando
-                    AlteraTabuleiro(tabuleiroFrotaP1, tabuleiroRadarP2, coordenadaTiro);
+                    ProcessarTiro(tabuleiroFrotaP1, tabuleiroRadarP2, posicaoTiro);
 
                 }
             }
@@ -425,57 +437,65 @@ namespace Batalha_Naval
     //metodos
         #region Tabuleiro
         //gera os tabuleiros com "agua" em todas as posições
-        static void IniciaTabuleiro(TipoCelula[,] tabuleiro)
+        static void InicializarTabuleiro(TipoCelula[,] tabuleiro)
         {
-            for (int l = 0; l < tabuleiro.GetLength(0); l++)
+            for (int linha = 0; linha < tabuleiro.GetLength(0); linha++)
             {
-                for (int c = 0; c < tabuleiro.GetLength(1); c++)
+                for (int coluna = 0; coluna < tabuleiro.GetLength(1); coluna++)
                 {
-                    tabuleiro[l, c] = TipoCelula.Agua;
+                    tabuleiro[linha, coluna] = TipoCelula.Agua;
                 }
             }
         }
         //verifica se o tiro acertou e altera os icones nos tabuleiros
-        static void AlteraTabuleiro(TipoCelula[,] playerAtacado, TipoCelula[,] playerAtacante, int[] coordenadaTiro)
+        static void ProcessarTiro(TipoCelula[,] tabuleiroDefensor, TipoCelula[,] tabuleiroRadar, Coordenada posicaoTiro)
         {
-            TipoCelula alvo = playerAtacado[coordenadaTiro[0], coordenadaTiro[1]];
+            TipoCelula alvo = tabuleiroDefensor[posicaoTiro.Linha, posicaoTiro.Coluna];
 
             // ACERTO
-            if (alvo == TipoCelula.Submarino || alvo == TipoCelula.Encouracado || alvo == TipoCelula.Cruzador || alvo == TipoCelula.PortaAvioes)
-            {
-                playerAtacante[coordenadaTiro[0], coordenadaTiro[1]] = TipoCelula.Acerto;
-                playerAtacado[coordenadaTiro[0], coordenadaTiro[1]] = TipoCelula.Acerto;
+            if (ContemNavio(alvo))
+            {   
+                // if(scorePlayer1 >= CalcularPontosVitoria() || scorePlayer2 >= CalcularPontosVitoria())
+                // {
+                //     jogoAtivo = false;
+                //     Console.Clear();
+                //     string vitorioso;
+                //     vitorioso = scorePlayer1 == CalcularPontosVitoria() ? nomePlayer1 : nomePlayer2;
+                //     Console.WriteLine(vitorioso + " venceu");
+                // }
+                tabuleiroDefensor[posicaoTiro.Linha, posicaoTiro.Coluna] = TipoCelula.Acerto;
+                tabuleiroRadar[posicaoTiro.Linha, posicaoTiro.Coluna] = TipoCelula.Acerto;
 
                 Console.Clear();
 
-                if (playerAtacado == tabuleiroFrotaP2){
-                    ImpressaoTelaJogador(1);
+                if (tabuleiroDefensor == tabuleiroFrotaP2){
+                    ExibirTelaJogador(1);
                     scorePlayer1++;
                 }
-                else if (playerAtacado == tabuleiroFrotaP1){
-                    ImpressaoTelaJogador(2);
+                else if (tabuleiroDefensor == tabuleiroFrotaP1){
+                    ExibirTelaJogador(2);
                     scorePlayer2++;
                 }
                 
                 Console.ForegroundColor = ConsoleColor.Green;
-                Space();
+                PularLinha();
                 Console.WriteLine("\n💥 Você acertou um navio! Jogue novamente.");
                 Console.ResetColor();
 
                 Thread.Sleep(1500);
 
-                DarTiro(coordenadaTiro, playerAtacante);
-                AlteraTabuleiro(playerAtacado, playerAtacante, coordenadaTiro);
+                CapturarCoordenadaTiro(ref posicaoTiro, tabuleiroRadar);
+                ProcessarTiro(tabuleiroDefensor, tabuleiroRadar, posicaoTiro);
             }
 
             // ERRO
             else if (alvo == TipoCelula.Agua)
             {
-                playerAtacante[coordenadaTiro[0], coordenadaTiro[1]] = TipoCelula.Erro;
-                playerAtacado[coordenadaTiro[0], coordenadaTiro[1]] = TipoCelula.Erro;
+                tabuleiroDefensor[posicaoTiro.Linha, posicaoTiro.Coluna] = TipoCelula.Erro;
+                tabuleiroRadar[posicaoTiro.Linha, posicaoTiro.Coluna] = TipoCelula.Erro;
 
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Space();
+                PularLinha();
                 Console.WriteLine("\n💧 Você errou o disparo! Vez do adversário.");
                 Console.ResetColor();
 
@@ -486,37 +506,37 @@ namespace Batalha_Naval
         #region Navios
         static void GerarFrota(TipoCelula[,] tabuleiro)
         {
-            GerarBarco(quantPortaAvioes, tabuleiro, TipoNavio.PortaAvioes);
-            GerarBarco(quantEncouracados, tabuleiro, TipoNavio.Encouracado);
-            GerarBarco(quantCruzadores, tabuleiro, TipoNavio.Cruzador);
-            GerarBarco(quantCruzadores, tabuleiro, TipoNavio.Destroyer);
-            GerarBarco(quantSubmarinos, tabuleiro, TipoNavio.Submarino);
+            GerarNavio(quantPortaAvioes, tabuleiro, TipoNavio.PortaAvioes);
+            GerarNavio(quantEncouracados, tabuleiro, TipoNavio.Encouracado);
+            GerarNavio(quantCruzadores, tabuleiro, TipoNavio.Cruzador);
+            GerarNavio(quantDestroyers, tabuleiro, TipoNavio.Destroyer);
+            GerarNavio(quantSubmarinos, tabuleiro, TipoNavio.Submarino);
         }
-        static void GerarBarco(int quantidade, TipoCelula[,] tabuleiro, TipoNavio tipo)
+        static void GerarNavio(int quantidade, TipoCelula[,] tabuleiro, TipoNavio tipo)
         {
-            TipoCelula letra = LetraNavio(tipo);
-            int tamanho = TamanhoNavio(tipo);
+            TipoCelula tipoCelulaNavio = ConverterNavioParaCelula(tipo);
+            int tamanho = ObterTamanhoNavio(tipo);
 
             for (int i = 0; i < quantidade; i++)
             {
-                bool colocado = false;
+                bool navioPosicionado = false;
 
-                while (!colocado)
+                while (!navioPosicionado)
                 {
                     int linha = random.Next(0, TAM_TABULEIRO);
                     int coluna = random.Next(0, TAM_TABULEIRO);
-                    bool horizontal = random.Next(2) == 0;
+                    bool orientacaoHorizontal = random.Next(2) == 0;
 
-                    colocado = PosicionaBarco(tabuleiro, linha, coluna, tamanho, letra, horizontal);
+                    navioPosicionado = PosicionarNavio(tabuleiro, linha, coluna, tamanho, tipoCelulaNavio, orientacaoHorizontal);
                 }
             }
         }
-        static bool PosicionaBarco(TipoCelula[,] tabuleiro, int linha, int coluna, int tamanho, TipoCelula barco, bool horizontal)
+        static bool PosicionarNavio(TipoCelula[,] tabuleiro, int linha, int coluna, int tamanho, TipoCelula barco, bool orientacaoHorizontal)
         {
             int tamanhoTabuleiro = tabuleiro.GetLength(0);
 
             // Verifica se o barco cabe no tabuleiro
-            if (horizontal)
+            if (orientacaoHorizontal)
             {
                 if (coluna + tamanho > tamanhoTabuleiro)
                     return false;
@@ -530,67 +550,67 @@ namespace Batalha_Naval
             // Verifica se já existe barco nas posições
             for (int i = 0; i < tamanho; i++)
             {
-                int l = horizontal ? linha : linha + i;
-                int c = horizontal ? coluna + i : coluna;
+                int linhaAtual = orientacaoHorizontal ? linha : linha + i;
+                int colunaAtual = orientacaoHorizontal ? coluna + i : coluna;
 
-                if (tabuleiro[l, c] != TipoCelula.Agua)
+                if (tabuleiro[linhaAtual, colunaAtual] != TipoCelula.Agua)
                     return false;
             }
 
             // Posiciona o barco
             for (int i = 0; i < tamanho; i++)
             {
-                int l = horizontal ? linha : linha + i;
-                int c = horizontal ? coluna + i : coluna;
+                int linhaAtual = orientacaoHorizontal ? linha : linha + i;
+                int colunaAtual = orientacaoHorizontal ? coluna + i : coluna;
 
-                tabuleiro[l, c] = barco;
+                tabuleiro[linhaAtual, colunaAtual] = barco;
             }
 
             return true;
         }
         static void PosicionarFrotaManual(TipoCelula[,] tabuleiro)
         {
-            PosicionaBarcoManual(quantPortaAvioes, TipoNavio.PortaAvioes, tabuleiro);
-            PosicionaBarcoManual(quantEncouracados, TipoNavio.Encouracado, tabuleiro);
-            PosicionaBarcoManual(quantCruzadores, TipoNavio.Cruzador, tabuleiro);
-            PosicionaBarcoManual(quantDestroyers, TipoNavio.Destroyer, tabuleiro);
-            PosicionaBarcoManual(quantSubmarinos, TipoNavio.Submarino, tabuleiro);
+            PosicionarNavioManual(quantPortaAvioes, TipoNavio.PortaAvioes, tabuleiro);
+            PosicionarNavioManual(quantEncouracados, TipoNavio.Encouracado, tabuleiro);
+            PosicionarNavioManual(quantCruzadores, TipoNavio.Cruzador, tabuleiro);
+            PosicionarNavioManual(quantDestroyers, TipoNavio.Destroyer, tabuleiro);
+            PosicionarNavioManual(quantSubmarinos, TipoNavio.Submarino, tabuleiro);
         }
-        static void PosicionaBarcoManual(int quantidade, TipoNavio tipo, TipoCelula[,] tabuleiro)
+        static void PosicionarNavioManual(int quantidade, TipoNavio tipo, TipoCelula[,] tabuleiro)
         {
-            TipoCelula letra = LetraNavio(tipo);
-            int tamanho = TamanhoNavio(tipo);
+            TipoCelula tipoCelulaNavio = ConverterNavioParaCelula(tipo);
+            int tamanho = ObterTamanhoNavio(tipo);
             string nome = tipo.ToString();
 
             for (int i = 0; i < quantidade; i++)
             {
-                bool colocado = false;
+                bool navioPosicionado = false;
 
-                while (!colocado)
+                while (!navioPosicionado)
                 {
                     Console.Clear();
-                    InsereCabecalho("frota");
+                    ExibirCabecalhoTabuleiro("frota");
                     ImprimeTabuleiro(tabuleiro);
 
                     Console.WriteLine($"Posicionando {nome} (tamanho {tamanho})");
 
                     Console.Write("Linha inicial: ");
-                    int linha = LerNumero() - 1;
+                    int linha = LerInteiro() - 1;
 
                     Console.Write("Coluna inicial: ");
-                    int coluna = LerNumero() - 1;
+                    int coluna = LerInteiro() - 1;
 
-                    bool horizontal = true;
+                    bool orientacaoHorizontal = true;
 
                     if (tamanho > 1)
                     {
                         Console.Write("Horizontal? (s/n): ");
-                        horizontal = (Console.ReadLine()?.Trim().ToLower() == "s");
+                        orientacaoHorizontal = (Console.ReadLine()?.Trim().ToLower() == "s");
                     }
 
-                    colocado = PosicionaBarco(tabuleiro, linha, coluna, tamanho, letra, horizontal);
+                    navioPosicionado = PosicionarNavio(tabuleiro, linha, coluna, tamanho, tipoCelulaNavio, orientacaoHorizontal);
 
-                    if (!colocado)
+                    if (!navioPosicionado)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("Não foi possível posicionar o barco.");
@@ -604,36 +624,44 @@ namespace Batalha_Naval
         #endregion
         #region Mecânicas do jogo
         //coleta as coordenadas do ataque, linha e coluna
-        static void DarTiro(int[] coordenadaTiro, TipoCelula[,] tabuleiro)
+        static void CapturarCoordenadaTiro(ref Coordenada posicaoTiro, TipoCelula[,] tabuleiro)
         {
-            Space(2);
+            PularLinha(2);
             Console.Write("insira a linha em que você quer atacar: ");
-            coordenadaTiro[0] = LerNumero() - 1;
+            posicaoTiro.Linha = LerInteiro() - 1;
             Console.Write("insira a coluna em que você quer atacar: ");
-            coordenadaTiro[1] = LerNumero() - 1;
+            posicaoTiro.Coluna = LerInteiro() - 1;
 
-            ValidarLimiteTabuleiro(coordenadaTiro, tabuleiro);
-            ValidarRepeticaoJogada(coordenadaTiro, tabuleiro);
+            posicaoTiro = ValidarCoordenadaTabuleiro(posicaoTiro, tabuleiro);
+            posicaoTiro = ValidarTiroRepetido(posicaoTiro, tabuleiro);
         }
         //tratamento de erros (explosão da matriz)
-        static void ValidarLimiteTabuleiro(int[] coordenadaTiro, TipoCelula[,] player)
+        static Coordenada ValidarCoordenadaTabuleiro(Coordenada posicaoTiro, TipoCelula[,] tabuleiro)
         {
-            while (coordenadaTiro[0] < 0 || coordenadaTiro[0] >= TAM_TABULEIRO || coordenadaTiro[1] < 0 || coordenadaTiro[1] >= TAM_TABULEIRO)
+            while (posicaoTiro.Linha < 0 || posicaoTiro.Linha >= TAM_TABULEIRO ||
+                posicaoTiro.Coluna < 0 || posicaoTiro.Coluna >= TAM_TABULEIRO)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("A posição esta fora do radar, escolha outra");
+                Console.WriteLine("A posição está fora do radar, escolha outra.");
                 Console.ResetColor();
-                DarTiro(coordenadaTiro, player);
+
+                CapturarCoordenadaTiro(ref posicaoTiro, tabuleiro);
             }
+
+            return posicaoTiro;
         }
+
         //tratamento de erros (repetição de jogada)
-        static void ValidarRepeticaoJogada(int[] coordenadaTiro, TipoCelula[,] player)
+        static Coordenada ValidarTiroRepetido(Coordenada posicaoTiro, TipoCelula[,] tabuleiro)
         {
-            while (player[coordenadaTiro[0], coordenadaTiro[1]] != TipoCelula.Agua)
+            while (tabuleiro[posicaoTiro.Linha, posicaoTiro.Coluna] != TipoCelula.Agua)
             {
-                Console.WriteLine("você já disparou neste quadrante, escolha outro");
-                DarTiro(coordenadaTiro, player);
+                Console.WriteLine("Você já disparou neste quadrante, escolha outro.");
+
+                CapturarCoordenadaTiro(ref posicaoTiro, tabuleiro);
             }
+
+            return posicaoTiro;
         }
         #endregion
         #region Interface
@@ -656,20 +684,20 @@ namespace Batalha_Naval
                 }
 
                 // quebra de linha após o par
-                Space();
+                PularLinha();
             }
         }
         static void CapturaNomeCor(int num)
         {
             Console.WriteLine("player " + num);
-            Space();
+            PularLinha();
 
             Console.Write("Insira o seu nome: ");
             string nomeDigitado = Console.ReadLine() ?? "";
 
-            Space();
+            PularLinha();
             Console.WriteLine("Escolha uma cor: ");
-            Space();
+            PularLinha();
 
             Console.Write("1 - ");
             Console.ForegroundColor = ConsoleColor.Red;
@@ -686,7 +714,7 @@ namespace Batalha_Naval
             Console.WriteLine(nomeDigitado);
             Console.ResetColor();
 
-            Space();
+            PularLinha();
 
             Console.Write("2 - ");
             Console.ForegroundColor = ConsoleColor.Yellow;
@@ -703,7 +731,7 @@ namespace Batalha_Naval
             Console.WriteLine(nomeDigitado);
             Console.ResetColor();
 
-            Space();
+            PularLinha();
 
             Console.Write("3 - ");
             Console.ForegroundColor = ConsoleColor.Green;
@@ -720,10 +748,10 @@ namespace Batalha_Naval
             Console.WriteLine(nomeDigitado);
             Console.ResetColor();
 
-            Space();
+            PularLinha();
 
             int corEscolhida; 
-            corEscolhida = LerNumero();
+            corEscolhida = LerInteiro();
             
             if (num == 1)
             {
@@ -737,61 +765,61 @@ namespace Batalha_Naval
             }
         }        
         //metodo que reune a chamada de um grupo de metodos que constituem a tela do player 
-        static void ImpressaoTelaJogador(int playerdavez)
+        static void ExibirTelaJogador(int jogadorAtual)
         {
-            if (playerdavez == 1)
+            if (jogadorAtual == 1)
             {
-                PlayerLegenda(1);
-                InsereCabecalho("frota");
+                ExibirLegendaJogador(1);
+                ExibirCabecalhoTabuleiro("frota");
                 ImprimeTabuleiro(tabuleiroFrotaP1);
-                InsereCabecalho("radar");
+                ExibirCabecalhoTabuleiro("radar");
                 ImprimeTabuleiro(tabuleiroRadarP1);
-                Space();
+                PularLinha();
             }
-            else if (playerdavez == 2)
+            else if (jogadorAtual == 2)
             {
-                PlayerLegenda(2);
-                InsereCabecalho("frota");
+                ExibirLegendaJogador(2);
+                ExibirCabecalhoTabuleiro("frota");
                 ImprimeTabuleiro(tabuleiroFrotaP2);
-                InsereCabecalho("radar");
+                ExibirCabecalhoTabuleiro("radar");
                 ImprimeTabuleiro(tabuleiroRadarP2);
-                Space();
+                PularLinha();
             }
         }
         //exibe nome do player da vez e a legenda dos tabuleiros
-        static void PlayerLegenda(int numeroPlayer)
+        static void ExibirLegendaJogador(int idJogador)
         {
             Console.Write("                  Player: ");
-            if (numeroPlayer == 1)
+            if (idJogador == 1)
             {
                 Console.ForegroundColor = SelecaoCorPlayer(corPlayer1);  
                 Console.Write(nomePlayer1);
             }
-            else if (numeroPlayer == 2)
+            else if (idJogador == 2)
             {
                 Console.ForegroundColor = SelecaoCorPlayer(corPlayer2);                
                 Console.Write(nomePlayer2);
             }
             Console.ResetColor();
-            Space(2);
+            PularLinha(2);
             Console.WriteLine("Legenda: ");
-            Space();
+            PularLinha();
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write(CelulaSimbolo(TipoCelula.Agua));
+            Console.Write(ObterSimboloCelula(TipoCelula.Agua));
             Console.ResetColor();
             Console.WriteLine(" agua");
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write(CelulaSimbolo(TipoCelula.Erro));
+            Console.Write(ObterSimboloCelula(TipoCelula.Erro));
             Console.ResetColor();
             Console.WriteLine(" errou");
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write(CelulaSimbolo(TipoCelula.Acerto));
+            Console.Write(ObterSimboloCelula(TipoCelula.Acerto));
             Console.ResetColor();
             Console.WriteLine(" acertou");
-            Space(2);
+            PularLinha(2);
         }
         //cabeçalho dos tabuleiros
-        static void InsereCabecalho(string frotaOuRadar)
+        static void ExibirCabecalhoTabuleiro(string frotaOuRadar)
         {
             if (frotaOuRadar == "frota")
             {
@@ -800,45 +828,45 @@ namespace Batalha_Naval
             }
             else if (frotaOuRadar == "radar")
             {
-                Space(2);
+                PularLinha(2);
                 Console.ForegroundColor = ConsoleColor.DarkRed;
                 Console.WriteLine("                   SEU RADAR");
             }
             Console.ResetColor();
-            Space();
+            PularLinha();
             Console.Write("    1  2  3  4  5  6  7  8  9  10 11 12 13");
-            Space();
+            PularLinha();
 
         }
-        static void ImprimeTabuleiro(TipoCelula[,] player)
+        static void ImprimeTabuleiro(TipoCelula[,] tabuleiro)
         {
-            for (int l = 0; l < player.GetLength(0); l++)
+            for (int linha = 0; linha < tabuleiro.GetLength(0); linha++)
             {
-                Console.Write((l + 1).ToString("00"));
-                for (int c = 0; c < player.GetLength(1); c++)
+                Console.Write((linha + 1).ToString("00"));
+                for (int coluna = 0; coluna < tabuleiro.GetLength(1); coluna++)
                 {
-                    if (player[l, c] == TipoCelula.Agua)
+                    if (tabuleiro[linha, coluna] == TipoCelula.Agua)
                     {
                         Console.ForegroundColor = ConsoleColor.Cyan;
                     }
-                    else if (player[l, c] == TipoCelula.Acerto)
+                    else if (tabuleiro[linha, coluna] == TipoCelula.Acerto)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
                     }
-                    else if (player[l, c] == TipoCelula.Erro)
+                    else if (tabuleiro[linha, coluna] == TipoCelula.Erro)
                     {
                         Console.ForegroundColor = ConsoleColor.Yellow;
                     }
-                    Console.Write("  " + CelulaSimbolo(player[l, c]));
+                    Console.Write("  " + ObterSimboloCelula(tabuleiro[linha, coluna]));
                     Console.ResetColor();
                 }
-                Space();
+                PularLinha();
             }
         }
         #endregion
         #region Auxiliares
         //valida e captura o numero digitado
-        static int LerNumero()
+        static int LerInteiro()
         {
             int numero;
 
@@ -850,11 +878,11 @@ namespace Batalha_Naval
             return numero;
         }
         //insere os espaços na interface 
-        static void Space() 
+        static void PularLinha() 
         {
             Console.WriteLine();
         }
-        static void Space(int linhas) 
+        static void PularLinha(int linhas) 
         {
             for (int i = 0; i < linhas; i++)
                 Console.WriteLine();
@@ -877,7 +905,7 @@ namespace Batalha_Naval
             };
         }
         //axuliares do enum TipoNavio
-        static TipoCelula LetraNavio(TipoNavio tipo)
+        static TipoCelula ConverterNavioParaCelula(TipoNavio tipo)
         {
             return tipo switch
             {
@@ -889,7 +917,7 @@ namespace Batalha_Naval
                 _ => TipoCelula.Agua
             };
         }
-        static int TamanhoNavio(TipoNavio tipo)
+        static int ObterTamanhoNavio(TipoNavio tipo)
         {
             return tipo switch
             {
@@ -901,7 +929,7 @@ namespace Batalha_Naval
                 _ => 1
             };
         }
-        static string CelulaSimbolo(TipoCelula celula)
+        static string ObterSimboloCelula(TipoCelula celula)
         {
             return celula switch
             {
@@ -916,7 +944,19 @@ namespace Batalha_Naval
                 _ => "?"
             };
         }
-        static int CalcPontosVitoria()
+        static bool ContemNavio(TipoCelula celula)
+        {
+            return celula switch
+            {
+                TipoCelula.Submarino => true,
+                TipoCelula.Encouracado => true,
+                TipoCelula.Cruzador => true,
+                TipoCelula.PortaAvioes => true,
+                TipoCelula.Destroyer => true,
+                _ => false
+            };
+        }
+        static int CalcularPontosVitoria()
         {
             return 
                 quantPortaAvioes * 5 +
