@@ -76,34 +76,34 @@ namespace Batalha_Naval
         #region Artes
         static readonly string[] navio = new string[]
             {
-                "                                    |__",
-                "                                    |\\/",
-                "                                    ---",
-                "                                    / | [",
-                "                             !      | |||",
-                "                           _/|     _/|-++'",
-                "                       +  +--|    |--|--|_ |-",
-                "                    { /|__|  |/\\__|  |--- |||__/",
-                "                   +---------------___[}-_===_.'____                 /\\",
-                "               ____`-' ||___-{]_| _[}-  |     |_[___\\==--            \\/   _",
-                " __..._____--==/___]_|__|_____________________________[___\\==--____,------' .7",
-                "|                                                                     BB-61/",
-                " \\_________________________________________________________________________|",
-                "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                "                                       |__",
+                "                                       |\\/",
+                "                                       ---",
+                "                                       / | [",
+                "                                !      | |||",
+                "                              _/|     _/|-++'",
+                "                          +  +--|    |--|--|_ |-",
+                "                       { /|__|  |/\\__|  |--- |||__/",
+                "                      +---------------___[}-_===_.'____                 /\\",
+                "                  ____`-' ||___-{]_| _[}-  |     |_[___\\==--            \\/   _",
+                "    __..._____--==/___]_|__|_____________________________[___\\==--____,------' .7",
+                "   |                                                                     BB-61/",
+                "    \\_________________________________________________________________________|",
+                "   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
             };
         static readonly LinhaColorida[] menuArte = new LinhaColorida[]
             {
-                new LinhaColorida("__________         __    __  .__         ", ConsoleColor.Cyan),
+                new LinhaColorida("      __________         __    __  .__         ", ConsoleColor.Cyan),
                 new LinhaColorida("  _________.__    .__        ", ConsoleColor.Red),
-                new LinhaColorida("\\______   \\_____ _/  |__/  |_|  |   ____ ", ConsoleColor.Cyan),
+                new LinhaColorida("      \\______   \\_____ _/  |__/  |_|  |   ____ ", ConsoleColor.Cyan),
                 new LinhaColorida(" /   _____/|  |__ |__|_____  ", ConsoleColor.Red),
-                new LinhaColorida(" |    |  _/\\__  \\\\   __\\   __\\  | _/ __ \\", ConsoleColor.Cyan),
+                new LinhaColorida("       |    |  _/\\__  \\\\   __\\   __\\  | _/ __ \\", ConsoleColor.Cyan),
                 new LinhaColorida(" \\_____  \\ |  |  \\|  \\  __ \\ ", ConsoleColor.Red),
-                new LinhaColorida(" |    |   \\ / __ \\|  |  |  | |  |_\\  ___/", ConsoleColor.Cyan),
+                new LinhaColorida("       |    |   \\ / __ \\|  |  |  | |  |_\\  ___/", ConsoleColor.Cyan),
                 new LinhaColorida(" /        \\|   Y  \\  |  |_| >", ConsoleColor.Red),
-                new LinhaColorida(" |______  /(____  /__|  |__| |____/\\___ \\", ConsoleColor.Cyan),
+                new LinhaColorida("       |______  /(____  /__|  |__| |____/\\___ \\", ConsoleColor.Cyan),
                 new LinhaColorida("/_______  /|___|  /__|   __/", ConsoleColor.Red),
-                new LinhaColorida("        \\/      \\/                     \\/", ConsoleColor.Cyan),
+                new LinhaColorida("              \\/      \\/                     \\/", ConsoleColor.Cyan),
                 new LinhaColorida("        \\/      \\/   |__|   ", ConsoleColor.Red)
             };
         #endregion
@@ -158,16 +158,54 @@ namespace Batalha_Naval
             ConfigurarJogador(2);
 
             while (jogoAtivo)
+            {
+                // turno do player 1
+                RealizarTurno(1, tabuleiroRadarP1, tabuleiroFrotaP2, posicaoTiro);
+
+                if (VerificarVitoria())
                 {
-                    RealizarTurno(1, tabuleiroRadarP1, tabuleiroFrotaP2, posicaoTiro);
-                    RealizarTurno(2, tabuleiroRadarP2, tabuleiroFrotaP1, posicaoTiro);
+                    jogoAtivo = false;
+                    break;
                 }
+
+                // turno do player 2
+                RealizarTurno(2, tabuleiroRadarP2, tabuleiroFrotaP1, posicaoTiro);
+
+                if (VerificarVitoria())
+                {
+                    jogoAtivo = false;
+                }
+            }
+
+            ExibirVitoria();
         }
+
         static void SairDoJogo()
         {
             Console.WriteLine("Saindo do jogo...");
             Thread.Sleep(1000); // Pequena pausa para o usuário ver a mensagem
             Environment.Exit(0); // encerra o programa
+        }
+        static bool VerificarVitoria()
+        {
+            return scorePlayer1 >= CalcularPontosVitoria() ||
+                scorePlayer2 >= CalcularPontosVitoria();
+        }
+        static void ExibirVitoria()
+        {
+            Console.Clear();
+
+            string vencedor =
+                scorePlayer1 >= CalcularPontosVitoria()
+                ? nomePlayer1
+                : nomePlayer2;
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("🏆 VITÓRIA!");
+            Console.WriteLine($"{vencedor} destruiu toda a frota inimiga!");
+            Console.ResetColor();
+
+            Console.ReadKey();
         }
         #endregion
         #region Configuraçao do jogo
@@ -333,14 +371,6 @@ namespace Batalha_Naval
             // ACERTO
             if (ContemNavio(alvo))
             {   
-                // if(scorePlayer1 >= CalcularPontosVitoria() || scorePlayer2 >= CalcularPontosVitoria())
-                // {
-                //     jogoAtivo = false;
-                //     Console.Clear();
-                //     string vitorioso;
-                //     vitorioso = scorePlayer1 == CalcularPontosVitoria() ? nomePlayer1 : nomePlayer2;
-                //     Console.WriteLine(vitorioso + " venceu");
-                // }
                 tabuleiroDefensor[posicaoTiro.Linha, posicaoTiro.Coluna] = TipoCelula.Acerto;
                 tabuleiroRadar[posicaoTiro.Linha, posicaoTiro.Coluna] = TipoCelula.Acerto;
 
@@ -355,6 +385,16 @@ namespace Batalha_Naval
                     scorePlayer2++;
                 }
                 
+                if (VerificarVitoria())
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("\n💥 ACERTOU O ÚLTIMO NAVIO!");
+                    Console.ResetColor();
+
+                    Thread.Sleep(2000);
+
+                    return;
+                }
                 Console.ForegroundColor = ConsoleColor.Green;
                 PularLinha();
                 Console.WriteLine("\n💥 Você acertou um navio! Jogue novamente.");
@@ -553,14 +593,15 @@ namespace Batalha_Naval
         static int ExibirMenu()
         {
             Console.Clear();
+            PularLinha();
             ImprimirArte(menuArte);
-            PularLinha(4);
+            PularLinha(5);
 
-            Console.WriteLine("[1] Começar novo jogo");
-            Console.WriteLine("[2] Instruções");
-            Console.WriteLine("[3] Configurações");
-            Console.WriteLine("[4] Sair");
-            PularLinha(3);
+            Console.WriteLine("     [1] Começar novo jogo");
+            Console.WriteLine("     [2] Instruções");
+            Console.WriteLine("     [3] Configurações");
+            Console.WriteLine("     [4] Sair");
+            PularLinha(4);
 
             //imprime arte do navio
             foreach (string linha in navio)
