@@ -57,8 +57,12 @@ namespace Batalha_Naval
             }
         }
         #endregion
+        static Dictionary<int, int> placar = new Dictionary<int, int>()
+        {
+            {1, 0},
+            {2, 0}
+        };
         #region Estado do jogo
-        static int scorePlayer1 = 0, scorePlayer2 = 0;
         
         #endregion
         #region Utilidades
@@ -67,10 +71,10 @@ namespace Batalha_Naval
         #region Configuração
         static int corPlayer1, corPlayer2;
         static string nomePlayer1 = "", nomePlayer2 = "";
-        static int quantPortaAvioes = 0; //1
-        static int quantEncouracados = 0; //2
-        static int quantCruzadores = 0; //2
-        static int quantDestroyers = 0; //3
+        static int quantPortaAvioes = 1; //1
+        static int quantEncouracados = 2; //2
+        static int quantCruzadores = 2; //2
+        static int quantDestroyers = 3; //3
         static int quantSubmarinos = 1; //3
         #endregion
         #region Artes
@@ -145,8 +149,8 @@ namespace Batalha_Naval
         #region fluxo do jogo
         static void Novojogo()
         {
-            scorePlayer1 = 0;
-            scorePlayer2 = 0;
+            placar[1] = 0;
+            placar[2] = 0;
             Coordenada posicaoTiro = new Coordenada();
             bool jogoAtivo = true;
 
@@ -179,7 +183,6 @@ namespace Batalha_Naval
 
             ExibirVitoria();
         }
-
         static void SairDoJogo()
         {
             Console.WriteLine("Saindo do jogo...");
@@ -188,23 +191,21 @@ namespace Batalha_Naval
         }
         static bool VerificarVitoria()
         {
-            return scorePlayer1 >= CalcularPontosVitoria() ||
-                scorePlayer2 >= CalcularPontosVitoria();
+            return placar[1] >= CalcularPontosVitoria() ||
+                placar[2] >= CalcularPontosVitoria();
         }
         static void ExibirVitoria()
         {
             Console.Clear();
 
             string vencedor =
-                scorePlayer1 >= CalcularPontosVitoria()
+                placar[1] >= CalcularPontosVitoria()
                 ? nomePlayer1
                 : nomePlayer2;
 
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("🏆 VITÓRIA!");
-            Console.WriteLine($"{vencedor} destruiu toda a frota inimiga!");
-            Console.ResetColor();
-
+            EscreverColorido("🏆 VITÓRIA!", ConsoleColor.Green);
+            EscreverColorido($"{vencedor} destruiu toda a frota inimiga!", ConsoleColor.Green);
+            
             Console.ReadKey();
         }
         #endregion
@@ -224,25 +225,21 @@ namespace Batalha_Naval
             if (posicionar == "S")
             {
                 PularLinha();
-                Console.ForegroundColor = ConsoleColor.DarkGray;
-                Console.WriteLine("Pressione qualquer tecla para iniciar o posicionamento");
-                Console.ResetColor();
+                EscreverColorido("Pressione qualquer tecla para iniciar o posicionamento", ConsoleColor.DarkGray);
                 Console.ReadKey();
                 Console.Clear();
                 PosicionarFrotaManual(tabuleiro);
                 Thread.Sleep(800);
-                Console.ForegroundColor = ConsoleColor.DarkRed;
-                Console.WriteLine("agora é a vez do segundo player");
-                Console.ResetColor();
+                EscreverColorido("Agora é a vez do segundo player", SelecaoCorPlayer(corPlayer2));
+                
                 Thread.Sleep(2000);
             }            
 
             else if (posicionar == "N")
             {
-                Console.ForegroundColor = ConsoleColor.DarkGray;
                 PularLinha();
-                Console.WriteLine("Enviando embarcações...");
-                Console.ResetColor();
+                EscreverColorido("Enviando embarcações...", ConsoleColor.DarkGray);
+
                 Thread.Sleep(3000);
                 //gera os barcos player 1
                 GerarFrota(tabuleiro);
@@ -253,9 +250,8 @@ namespace Batalha_Naval
 
         static void ConfigurarQuantidadeNavios()
         {
-            Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine("              configurações");
-            Console.ResetColor();
+            EscreverColorido("              configurações", ConsoleColor.DarkRed);
+
             PularLinha(2);
             Console.Write("Insira a quantidade de porta aviões(Tamanho 5) no jogo: ");
             quantPortaAvioes = LerInteiro();
@@ -267,9 +263,8 @@ namespace Batalha_Naval
             quantDestroyers = LerInteiro();
             Console.Write("Insira a quantidade de submarinos(Tamanho 1) no jogo: ");
             quantSubmarinos = LerInteiro();
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine("Retornando ao menu...");
-            Console.ResetColor();
+            EscreverColorido("Retornando ao menu...", ConsoleColor.DarkGray);
+
             Thread.Sleep(2000);
             Console.Clear();
         }
@@ -286,54 +281,36 @@ namespace Batalha_Naval
             PularLinha();
 
             Console.Write("1 - ");
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write(nomeDigitado);
-            Console.ResetColor();
+            EscreverColorido(nomeDigitado, ConsoleColor.Red, false);
 
             Console.Write("             4 - ");
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write(nomeDigitado);
-            Console.ResetColor();
+            EscreverColorido(nomeDigitado, ConsoleColor.Cyan, false);
 
             Console.Write("             7 - ");
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.WriteLine(nomeDigitado);
-            Console.ResetColor();
+            EscreverColorido(nomeDigitado, ConsoleColor.Blue);
 
             PularLinha();
 
             Console.Write("2 - ");
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write(nomeDigitado);
-            Console.ResetColor();
+            EscreverColorido(nomeDigitado, ConsoleColor.Yellow, false);
 
             Console.Write("             5 - ");
-            Console.ForegroundColor = ConsoleColor.DarkGreen;
-            Console.Write(nomeDigitado);
-            Console.ResetColor();
+            EscreverColorido(nomeDigitado, ConsoleColor.DarkGreen, false);
 
             Console.Write("             8 - ");
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine(nomeDigitado);
-            Console.ResetColor();
+            EscreverColorido(nomeDigitado, ConsoleColor.DarkGray);
 
             PularLinha();
 
             Console.Write("3 - ");
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write(nomeDigitado);
-            Console.ResetColor();
+            EscreverColorido(nomeDigitado, ConsoleColor.Green, false);
 
             Console.Write("             6 - ");
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.Write(nomeDigitado);
-            Console.ResetColor();
-
+            EscreverColorido(nomeDigitado, ConsoleColor.Gray, false);
+            
             Console.Write("             9 - ");
-            Console.ForegroundColor = ConsoleColor.DarkMagenta;
-            Console.WriteLine(nomeDigitado);
-            Console.ResetColor();
-
+            EscreverColorido(nomeDigitado, ConsoleColor.DarkMagenta);
+            
             PularLinha();
 
             int corEscolhida; 
@@ -364,7 +341,7 @@ namespace Batalha_Naval
             }
         }
         //verifica se o tiro acertou e altera os icones nos tabuleiros
-        static void ProcessarTiro(TipoCelula[,] tabuleiroDefensor, TipoCelula[,] tabuleiroRadar, Coordenada posicaoTiro)
+        static bool ProcessarTiro(TipoCelula[,] tabuleiroDefensor, TipoCelula[,] tabuleiroRadar, Coordenada posicaoTiro)
         {
             TipoCelula alvo = tabuleiroDefensor[posicaoTiro.Linha, posicaoTiro.Coluna];
 
@@ -373,52 +350,16 @@ namespace Batalha_Naval
             {   
                 tabuleiroDefensor[posicaoTiro.Linha, posicaoTiro.Coluna] = TipoCelula.Acerto;
                 tabuleiroRadar[posicaoTiro.Linha, posicaoTiro.Coluna] = TipoCelula.Acerto;
-
-                Console.Clear();
-
-                if (tabuleiroDefensor == tabuleiroFrotaP2){
-                    ExibirTelaJogador(1);
-                    scorePlayer1++;
-                }
-                else if (tabuleiroDefensor == tabuleiroFrotaP1){
-                    ExibirTelaJogador(2);
-                    scorePlayer2++;
-                }
-                
-                if (VerificarVitoria())
-                {
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("\n💥 ACERTOU O ÚLTIMO NAVIO!");
-                    Console.ResetColor();
-
-                    Thread.Sleep(2000);
-
-                    return;
-                }
-                Console.ForegroundColor = ConsoleColor.Green;
-                PularLinha();
-                Console.WriteLine("\n💥 Você acertou um navio! Jogue novamente.");
-                Console.ResetColor();
-
-                Thread.Sleep(1500);
-
-                CapturarCoordenadaTiro(ref posicaoTiro, tabuleiroRadar);
-                ProcessarTiro(tabuleiroDefensor, tabuleiroRadar, posicaoTiro);
+                return true;
             }
 
             // ERRO
             else if (alvo == TipoCelula.Agua)
             {
                 tabuleiroDefensor[posicaoTiro.Linha, posicaoTiro.Coluna] = TipoCelula.Erro;
-                tabuleiroRadar[posicaoTiro.Linha, posicaoTiro.Coluna] = TipoCelula.Erro;
-
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                PularLinha();
-                Console.WriteLine("\n💧 Você errou o disparo! Vez do adversário.");
-                Console.ResetColor();
-
-                Thread.Sleep(2000);
+                tabuleiroRadar[posicaoTiro.Linha, posicaoTiro.Coluna] = TipoCelula.Erro;                
             }
+             return false;
         }
         #endregion
         #region Navios
@@ -530,9 +471,7 @@ namespace Batalha_Naval
 
                     if (!navioPosicionado)
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("Não foi possível posicionar o barco.");
-                        Console.ResetColor();
+                        EscreverColorido("Não foi possível posicionar o barco.", ConsoleColor.Red);
                         Console.ReadLine();
                     }
                 }
@@ -543,50 +482,71 @@ namespace Batalha_Naval
         #region Mecânicas do jogo
         static void RealizarTurno(int jogadorAtual, TipoCelula[,] tabuleiroRadar, TipoCelula[,] tabuleiroDefensor, Coordenada posicaoTiro)
         {
-            ExibirTelaJogador(jogadorAtual);
-            CapturarCoordenadaTiro(ref posicaoTiro, tabuleiroRadar);
-            ProcessarTiro(tabuleiroDefensor, tabuleiroRadar, posicaoTiro);
-            Console.Clear();
+            bool acertou;
+            do
+            {
+                ExibirTelaJogador(jogadorAtual);
+                CapturarCoordenadaTiro(ref posicaoTiro, tabuleiroRadar);
+                
+                acertou = ProcessarTiro(tabuleiroDefensor, tabuleiroRadar, posicaoTiro);
+                
+                Console.Clear();
+                ExibirTelaJogador(jogadorAtual);
+
+                if (VerificarVitoria())
+                {
+                    EscreverColorido("💥 ACERTOU O ÚLTIMO NAVIO!", ConsoleColor.Green);
+                    Thread.Sleep(2000);
+                    break;
+                }
+                
+                PularLinha();
+                if (acertou)
+                {
+                    placar[jogadorAtual]++;
+                    EscreverColorido("💥 Você acertou um navio! Jogue novamente.", ConsoleColor.Green);
+                    Thread.Sleep(2000);
+                }
+                else
+                {
+                    EscreverColorido("💧 Você errou o disparo! Vez do adversário.", ConsoleColor.Yellow);
+                    Thread.Sleep(2000);
+                }
+                        
+                Console.Clear();
+            }
+            while(acertou);
         }
         //coleta as coordenadas do ataque, linha e coluna
         static void CapturarCoordenadaTiro(ref Coordenada posicaoTiro, TipoCelula[,] tabuleiro)
         {
-            PularLinha(2);
-            Console.Write("insira a linha em que você quer atacar: ");
-            posicaoTiro.Linha = LerInteiro() - 1;
-            Console.Write("insira a coluna em que você quer atacar: ");
-            posicaoTiro.Coluna = LerInteiro() - 1;
-
-            posicaoTiro = ValidarCoordenadaTabuleiro(posicaoTiro, tabuleiro);
-            posicaoTiro = ValidarTiroRepetido(posicaoTiro, tabuleiro);
-        }
-        //tratamento de erros (explosão da matriz)
-        static Coordenada ValidarCoordenadaTabuleiro(Coordenada posicaoTiro, TipoCelula[,] tabuleiro)
-        {
-            while (posicaoTiro.Linha < 0 || posicaoTiro.Linha >= TAM_TABULEIRO ||
-                posicaoTiro.Coluna < 0 || posicaoTiro.Coluna >= TAM_TABULEIRO)
+            bool tiroValido = false;
+            while (!tiroValido)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("A posição está fora do radar, escolha outra.");
-                Console.ResetColor();
+                PularLinha(2);
+                Console.Write("insira a linha em que você quer atacar: ");
+                posicaoTiro.Linha = LerInteiro() - 1;
+                Console.Write("insira a coluna em que você quer atacar: ");
+                posicaoTiro.Coluna = LerInteiro() - 1;
 
-                CapturarCoordenadaTiro(ref posicaoTiro, tabuleiro);
+                    //tratamento de erros (explosão da matriz)
+                    if(posicaoTiro.Linha < 0 || posicaoTiro.Linha >= TAM_TABULEIRO ||
+                        posicaoTiro.Coluna < 0 || posicaoTiro.Coluna >= TAM_TABULEIRO)
+                        {
+                            EscreverColorido("A posição está fora do radar, escolha outra.", ConsoleColor.Red);
+
+                            continue;
+                        }
+                    //tratamento de erros (repetição de jogada)
+                    if(tabuleiro[posicaoTiro.Linha, posicaoTiro.Coluna] != TipoCelula.Agua)
+                        {
+                            EscreverColorido("Você já disparou neste quadrante, escolha outro.", ConsoleColor.DarkRed);
+                            continue;
+                        }
+
+                tiroValido = true;
             }
-
-            return posicaoTiro;
-        }
-
-        //tratamento de erros (repetição de jogada)
-        static Coordenada ValidarTiroRepetido(Coordenada posicaoTiro, TipoCelula[,] tabuleiro)
-        {
-            while (tabuleiro[posicaoTiro.Linha, posicaoTiro.Coluna] != TipoCelula.Agua)
-            {
-                Console.WriteLine("Você já disparou neste quadrante, escolha outro.");
-
-                CapturarCoordenadaTiro(ref posicaoTiro, tabuleiro);
-            }
-
-            return posicaoTiro;
+        
         }
         #endregion
         #region Interface
@@ -618,9 +578,7 @@ namespace Batalha_Naval
         static void ExibirInstrucoes()
         {
             string desejaConhecer;
-            Console.ForegroundColor = ConsoleColor.DarkCyan;
-            Console.WriteLine("                        Instruções");
-            Console.ResetColor();
+            EscreverColorido("                        Instruções", ConsoleColor.DarkCyan);
 
             Console.WriteLine("O objetivo do jogo é destruir todos os navios do seu oponente.");
             PularLinha();
@@ -633,21 +591,17 @@ namespace Batalha_Naval
             PularLinha();
 
             Console.Write("Se você acertar um navio, a posição será marcada com ");
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write(TipoCelula.Acerto);
-            Console.ResetColor();
+            EscreverColorido(ObterSimboloCelula(TipoCelula.Acerto), ConsoleColor.Red, false);
+
             Console.WriteLine(" e você poderá jogar novamente.");
             PularLinha();
 
             Console.Write("Se você errar o ataque, a posição será marcada com ");
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write(TipoCelula.Erro);
-            Console.ResetColor();
+            EscreverColorido(ObterSimboloCelula(TipoCelula.Erro), ConsoleColor.Yellow, false);
+            
             Console.WriteLine(" e a vez passará para o seu adversário.");
             PularLinha();
-
-            Console.WriteLine("O jogo termina quando um dos jogadores destruir todos os navios do oponente.");
-            Console.ForegroundColor = ConsoleColor.DarkGray;
+            EscreverColorido("O jogo termina quando um dos jogadores destruir todos os navios do oponente.", ConsoleColor.DarkGray);
             PularLinha();
             Console.WriteLine("você deseja Conhecer a interface do jogo (S/N) ?");
             Console.ResetColor();
@@ -698,25 +652,17 @@ namespace Batalha_Naval
             Console.ReadKey();
             Console.WriteLine("Legenda: ");
             PularLinha();
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write(ObterSimboloCelula(TipoCelula.Agua));
-            Console.ResetColor();
+            EscreverColorido(ObterSimboloCelula(TipoCelula.Agua), ConsoleColor.Cyan, false);
             Console.WriteLine(" agua");
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write(ObterSimboloCelula(TipoCelula.Erro));
-            Console.ResetColor();
+            EscreverColorido(ObterSimboloCelula(TipoCelula.Erro), ConsoleColor.Yellow, false);
             Console.WriteLine(" errou");
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write(ObterSimboloCelula(TipoCelula.Acerto));
-            Console.ResetColor();
+            EscreverColorido(ObterSimboloCelula(TipoCelula.Acerto), ConsoleColor.Red, false);
             Console.WriteLine(" acertou");
             PularLinha();
             Console.WriteLine("logo acima temos uma legenda auto explicativa que lhe informa o que cada simbolo significa");
             PularLinha(2);
             Console.ReadKey();
-            Console.ForegroundColor = ConsoleColor.DarkGreen;
-            Console.WriteLine("                   SUA FROTA");
-            Console.ResetColor();
+            EscreverColorido("                   SUA FROTA", ConsoleColor.DarkGreen);
             PularLinha();
             Console.Write("    1  2  3  4  5  6  7  8  9  10 11 12 13");
             PularLinha();
@@ -725,9 +671,7 @@ namespace Batalha_Naval
             Console.WriteLine("Este é o campo onde você vizualiza suas embarcações e onde o inimigo lhe atacou");
             Console.ReadKey();
             PularLinha(2);
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("                   SEU RADAR");
-            Console.ResetColor();
+            EscreverColorido("                   SEU RADAR", ConsoleColor.Red);
             PularLinha();
             
             ImprimeTabuleiro(tabuleiroRadarDemo);
@@ -740,9 +684,7 @@ namespace Batalha_Naval
             Console.WriteLine("insira a coluna em que você quer atacar:");
             Console.ReadKey();
             PularLinha();
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine("Presione qualquer tecla para voltar ao menu");
-            Console.ResetColor();
+            EscreverColorido("Presione qualquer tecla para voltar ao menu", ConsoleColor.DarkGray);
             Console.ReadKey();
             Console.Clear();
         }
@@ -751,16 +693,12 @@ namespace Batalha_Naval
             for (int i = 0; i < arte.Length; i += 2)
             {
                 // imprime a primeira linha do par
-                Console.ForegroundColor = arte[i].Cor;
-                Console.Write(arte[i].Texto);
-                Console.ResetColor();
-
+                EscreverColorido(arte[i].Texto, arte[i].Cor, false);
+                
                 // imprime a segunda linha do par, se existir
                 if (i + 1 < arte.Length)
                 {
-                    Console.ForegroundColor = arte[i + 1].Cor;
-                    Console.Write(arte[i + 1].Texto);
-                    Console.ResetColor();
+                    EscreverColorido(arte[i + 1].Texto, arte[i + 1].Cor, false);
                 }
 
                 // quebra de linha após o par
@@ -771,54 +709,36 @@ namespace Batalha_Naval
         //metodo que reune a chamada de um grupo de metodos que constituem a tela do player 
         static void ExibirTelaJogador(int jogadorAtual)
         {
-            if (jogadorAtual == 1)
-            {
-                ExibirLegendaJogador(1);
-                ExibirCabecalhoTabuleiro("frota");
-                ImprimeTabuleiro(tabuleiroFrotaP1);
-                ExibirCabecalhoTabuleiro("radar");
-                ImprimeTabuleiro(tabuleiroRadarP1);
-                PularLinha();
-            }
-            else if (jogadorAtual == 2)
-            {
-                ExibirLegendaJogador(2);
-                ExibirCabecalhoTabuleiro("frota");
-                ImprimeTabuleiro(tabuleiroFrotaP2);
-                ExibirCabecalhoTabuleiro("radar");
-                ImprimeTabuleiro(tabuleiroRadarP2);
-                PularLinha();
-            }
+            TipoCelula[,] frota = jogadorAtual == 1 ? tabuleiroFrotaP1 : tabuleiroFrotaP2;
+            TipoCelula[,] radar = jogadorAtual == 1 ? tabuleiroRadarP1 : tabuleiroRadarP2;
+
+            ExibirLegendaJogador(jogadorAtual);
+            ExibirCabecalhoTabuleiro("frota");
+            ImprimeTabuleiro(frota);
+            ExibirCabecalhoTabuleiro("radar");
+            ImprimeTabuleiro(radar);
+            PularLinha();
         }
         //exibe nome do player da vez e a legenda dos tabuleiros
         static void ExibirLegendaJogador(int idJogador)
-        {
+        {   
             Console.Write("                  Player: ");
             if (idJogador == 1)
             {
-                Console.ForegroundColor = SelecaoCorPlayer(corPlayer1);  
-                Console.Write(nomePlayer1);
+                EscreverColorido(nomePlayer1, SelecaoCorPlayer(corPlayer1));
             }
             else if (idJogador == 2)
             {
-                Console.ForegroundColor = SelecaoCorPlayer(corPlayer2);                
-                Console.Write(nomePlayer2);
+                EscreverColorido(nomePlayer2, SelecaoCorPlayer(corPlayer2));              
             }
-            Console.ResetColor();
             PularLinha(2);
             Console.WriteLine("Legenda: ");
             PularLinha();
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write(ObterSimboloCelula(TipoCelula.Agua));
-            Console.ResetColor();
+            EscreverColorido(ObterSimboloCelula(TipoCelula.Agua), ConsoleColor.Cyan, false);
             Console.WriteLine(" agua");
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write(ObterSimboloCelula(TipoCelula.Erro));
-            Console.ResetColor();
+            EscreverColorido(ObterSimboloCelula(TipoCelula.Erro), ConsoleColor.Yellow,false);
             Console.WriteLine(" errou");
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write(ObterSimboloCelula(TipoCelula.Acerto));
-            Console.ResetColor();
+            EscreverColorido(ObterSimboloCelula(TipoCelula.Acerto), ConsoleColor.Red, false);
             Console.WriteLine(" acertou");
             PularLinha(2);
         }
@@ -827,16 +747,13 @@ namespace Batalha_Naval
         {
             if (frotaOuRadar == "frota")
             {
-                Console.ForegroundColor = ConsoleColor.DarkGreen;
-                Console.WriteLine("                   SUA FROTA");
+                EscreverColorido("                   SUA FROTA", ConsoleColor.DarkGreen);
             }
             else if (frotaOuRadar == "radar")
             {
                 PularLinha(2);
-                Console.ForegroundColor = ConsoleColor.DarkRed;
-                Console.WriteLine("                   SEU RADAR");
+                EscreverColorido("                   SEU RADAR", ConsoleColor.DarkRed);
             }
-            Console.ResetColor();
             PularLinha();
             Console.Write("    1  2  3  4  5  6  7  8  9  10 11 12 13");
             PularLinha();
@@ -849,27 +766,39 @@ namespace Batalha_Naval
                 Console.Write((linha + 1).ToString("00"));
                 for (int coluna = 0; coluna < tabuleiro.GetLength(1); coluna++)
                 {
+                    ConsoleColor cor = ConsoleColor.Gray;
+
                     if (tabuleiro[linha, coluna] == TipoCelula.Agua)
                     {
-                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        cor = ConsoleColor.Cyan;
                     }
                     else if (tabuleiro[linha, coluna] == TipoCelula.Acerto)
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
+                        cor = ConsoleColor.Red;
                     }
                     else if (tabuleiro[linha, coluna] == TipoCelula.Erro)
                     {
-                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        cor = ConsoleColor.Yellow;
                     }
-                    Console.Write("  " + ObterSimboloCelula(tabuleiro[linha, coluna]));
-                    Console.ResetColor();
+                    EscreverColorido("  " + ObterSimboloCelula(tabuleiro[linha, coluna]), cor, false);
                 }
                 PularLinha();
             }
         }
         #endregion
         #region Auxiliares
-        //valida e captura o numero digitado
+        static void EscreverColorido(string mensagem, ConsoleColor cor, bool quebrarLinha = true)
+        {
+            Console.ForegroundColor = cor;
+
+            if (quebrarLinha)
+                Console.WriteLine(mensagem);
+            else
+                Console.Write(mensagem);
+
+            Console.ResetColor();
+        }
+        //captura e valida o numero digitado
         static int LerInteiro()
         {
             int numero;
@@ -878,7 +807,6 @@ namespace Batalha_Naval
             {
                 Console.WriteLine("Digite um número válido:");
             }
-
             return numero;
         }
         //insere os espaços na interface 
